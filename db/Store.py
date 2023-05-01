@@ -6,7 +6,7 @@ class DB:
     context = None
     def __init__(self, name) -> None:
         self.path = (Path(__file__).parent).joinpath(f"store/{name}.json")
-        if not os.path.exists("store/data.json"):
+        if not os.path.exists(self.path):
             with open(self.path, "w") as jsonFile:
                 json.dump({}, jsonFile, indent=2)
                 self.context = {}
@@ -16,9 +16,21 @@ class DB:
                 self.context = json.load(jsonFile, strict=False)
 
     def Add(self, date: datetime, data, isEnd = False):
-        if self._DateIsValid(date):
-            self.context[f"{date.year}{date.month}{date.day}{date.hour}{date.minute}0"] = data
+        try:
+            if not self._DateIsValid(date):
+                raise TypeError("Date is not valid")
 
+            id = f"{date.year}{date.month}{date.day}{date.hour}{date.minute}{'1' if isEnd else '0'}"
+            if id in self.context:
+                raise ValueError("Same id data is found")
+
+            self.context[id] = data
+        except TypeError as t:
+            # hata mesajını geri döndürecek
+            print(t)
+        except ValueError as v:
+            # hata mesajını geri döndürecek
+            print(v)
     def Remove(self, id):
         pass
 
@@ -37,36 +49,12 @@ class DB:
             f.close()
 
     def _DateIsValid(self, date):
-        if date.second > 60 or date.second < 0:
+        if date.second > 60 or date.second <= 0:
             return False
-        if date.hour > 24 or date.hour < 1:
+        if date.hour > 24 or date.hour < 0:
             return False
         if date.day > 31 or date.day < 1:
             return False
         if date.month > 12 or date.month < 1:
             return False
         return True
-
-
-class Id:
-    year: int
-    month: int
-    day: int
-    hour: int
-    second: int
-
-    def __init__(self, year, month, day, hour, second) -> None:
-        if second > 60 or second < 0:
-            raise ValueError(second)
-        if hour > 24 or hour < 1:
-            raise ValueError(hour)
-        if day > 31 or day < 1:
-            raise ValueError(day)
-        if month > 12 or month < 1:
-            raise ValueError(month)
-
-        self.year = year
-        self.month = month
-        self.day = day
-        self.hour = hour
-        self.second = second

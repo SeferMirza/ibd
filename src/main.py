@@ -1,7 +1,7 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from datetime import datetime
 from pathlib import Path
-import sys
+import sys, json
 path_root = Path(__file__).parents[1]
 print(path_root)
 sys.path.append(str(path_root))
@@ -11,12 +11,18 @@ api = Flask(__name__)
 dbName = "test"
 
 dbContext = DB(dbName)
-dbContext.Add(datetime.now(), {"sefer": "mirza"})
+#dbContext.Add(datetime.now(), {"sefer": "mirza"})
 
 @api.route('/log/<int:Number>', methods=['GET'])
 def get_log(Number):
    dbContext.Save()
    return jsonify(dbContext.context)
+
+@api.route('/log', methods=['POST'])
+def post_log():
+   dbContext.Add(datetime.now(), json.loads(request.data), True)
+   dbContext.Save()
+   return request.data
 
 if __name__ == '__main__':
    api.debug = True
