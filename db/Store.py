@@ -41,7 +41,8 @@ class DB:
         #not find mesajıda eklenecek
 
     def update(self, id, model):
-        pass
+        self.__context[str(id)] = model
+        return model
 
     def getById(self, id):
         return self.__context[str(id)]

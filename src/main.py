@@ -35,13 +35,15 @@ def getByCustomer(customer):
       "müşteri": customer
    }))
 
-@api.route('/worklog/work/<string:work>', methods=['GET'])
+@api.route('/worklog/work/<work>', methods=['GET'])
 def getByWork(work):
-   return jsonify(dbContext.getAll())
+   return jsonify(dbContext.getByObject({
+      "work": work
+   }))
 
 @api.route('/worklog/<int:id>', methods=['PUT'])
 def update(id):
-   return jsonify(dbContext.getAll())
+   return jsonify(dbContext.update(id, json.loads(request.data)))
 
 @api.route('/worklog/new', methods=['POST'])
 def add():
