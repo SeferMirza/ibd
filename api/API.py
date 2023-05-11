@@ -8,45 +8,41 @@ sys.path.append(str(path_root))
 from flask import Flask, jsonify, request
 from db.Store import DB
 class API:
-    def __init__(self):
-        self.app = Flask(__name__)
-        dbName = "test"
+   def __init__(self):
+      self.app = Flask(__name__)
+      dbName = "test"
+      self.__dbContext = DB(dbName)
 
-        dbContext = DB(dbName)
+      # Routes
+      self.app.route('/worklog/all', methods=['GET'])(self.getAllLog)
+      self.app.route('/worklog/remove/<int:id>', methods=['DELETE'])(self.removeLog)
+      self.app.route('/worklog/<int:id>', methods=['GET'])(self.getById)
+      self.app.route('/worklog/customer/<customer>', methods=['GET'])(self.getByCustomer)
+      self.app.route('/worklog/work/<work>', methods=['GET'])(self.getByWork)
+      self.app.route('/worklog/<int:id>', methods=['PUT'])(self.update)
+      self.app.route('/worklog/new', methods=['POST'])(self.add)
 
-        # Routes
-        @self.app.route('/worklog/all', methods=['GET'])
-        def getAllLog():
-           return jsonify(dbContext.getAll())
+   def getAllLog(self):
+      return jsonify(self.__dbContext.getAll())
 
-        @self.app.route('/worklog/remove/<int:id>', methods=['DELETE'])
-        def removeLog(id):
-           popedItem = dbContext.remove(id)
-           dbContext.save()
-           return popedItem
+   def removeLog(self, id):
+      popedItem = self.__dbContext.remove(id)
+      self.__dbContext.save()
+      return popedItem
 
-        @self.app.route('/worklog/<int:id>', methods=['GET'])
-        def getById(id):
-           return jsonify(dbContext.getById(id))
+   def getById(self, id):
+      return jsonify(self.__dbContext.getById(id))
 
-        @self.app.route('/worklog/customer/<customer>', methods=['GET'])
-        def getByCustomer(customer):
-           return jsonify(dbContext.getByObject({
-              "müşteri": customer
-           }))
+   def getByCustomer(self, customer):
+      return jsonify(self.__dbContext.getByObject({"müşteri": customer}))
 
-        @self.app.route('/worklog/work/<work>', methods=['GET'])
-        def getByWork(work):
-           return jsonify(dbContext.getByObject({
-              "work": work
-           }))
+   def getByWork(self, work):
+      return jsonify(self.__dbContext.getByObject({"work": work}))
 
-        @self.app.route('/worklog/<int:id>', methods=['PUT'])
-        def update(id):
-           return jsonify(dbContext.update(id, json.loads(request.data)))
+   def update(self, id):
+      return jsonify(self.__dbContext.update(id, json.loads(request.data)))
 
-        @self.app.route('/worklog/new', methods=['POST'])
-        def add():
-           dbContext.add(datetime.now(), json.loads(request.data))
-           dbContext.save()
-           return request.data
+   def add(self):
+      self.__dbContext.add(datetime.now(), json.loads(request.data))
+      self.__dbContext.save()
+      return request.data
