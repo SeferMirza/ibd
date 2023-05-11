@@ -6,8 +6,8 @@ class DB:
     __context = None
     def __init__(self, name) -> None:
         self.path = (Path(__file__).parent).joinpath(f"store/{name}.json")
-        if not os.path.exists(self.path):
-            with open(self.path, "w") as jsonFile:
+        if not os.path.exists(str(self.path)):
+            with open(str(self.path), "w") as jsonFile:
                 json.dump({}, jsonFile, indent=2)
                 self.__context = {}
                 jsonFile.close()
