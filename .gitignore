@@ -1,2 +1,2 @@
-db/store
+db/store/*
 __pycache__/
