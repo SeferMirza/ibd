@@ -8,4 +8,4 @@ from api.API import API
 
 if __name__ == '__main__':
    api = API()
-   api.app.run() #go to http://localhost:5000/ to view the page.
+   api.app.run(debug=True) #go to http://localhost:5000/ to view the page.

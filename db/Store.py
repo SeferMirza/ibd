@@ -16,27 +16,23 @@ class DB:
                 self.__context = json.load(jsonFile, strict=False)
 
     def add(self, date: datetime, data):
-        try:
-            if not self.__dateIsValid(date):
-                raise TypeError("Date is not valid")
+        if not self.__dateIsValid(date):
+            raise TypeError("Date is not valid")
 
-            month, day, hour, minute, second = self.__makeDateValidFormat(date)
-            id = f"{date.year}{month}{day}{hour}{minute}{second}"
-            if id in self.__context:
-                raise ValueError("Same id data is found")
+        month, day, hour, minute, second = self.__makeDateValidFormat(date)
+        id = f"{date.year}{month}{day}{hour}{minute}{second}"
+        if id in self.__context:
+            raise ValueError("Same id data is found")
 
-            self.__context[id] = data
-        except TypeError as t:
-            # hata mesajını geri döndürecek
-            print(t)
-        except ValueError as v:
-            # hata mesajını geri döndürecek
-            print(v)
+        self.__context[id] = data
+        return data
 
     def getAll(self):
         return self.__context
 
     def remove(self, id):
+        if self.__context[str(id)] is None:
+            raise DataNotFoundException("Data not found")
         return self.__context.pop(str(id))
         #not find mesajıda eklenecek
 
@@ -78,3 +74,8 @@ class DB:
         second = date.second if date.second >= 10 else f"0{date.second}"
 
         return month, day, hour, minute, second
+
+
+class DataNotFoundException(Exception):
+    def __init__(self, message):
+        self.message = message
