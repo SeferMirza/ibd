@@ -2,11 +2,14 @@ from datetime import datetime
 from pathlib import Path
 
 import sys, json
+
+import requests
 path_root = Path(__file__).parents[1]
 sys.path.append(str(path_root))
 
 from flask import Flask, jsonify, request
 from db.Store import DB, DataNotFoundException
+from api.types.Task import Task
 
 class API:
    def __init__(self):
@@ -33,6 +36,7 @@ class API:
          return popedItem
       except DataNotFoundException as d:
          return jsonify({'error': str(d)}), 500
+
    def getById(self, id):
       return jsonify(self.__dbContext.getById(id))
 
@@ -47,7 +51,12 @@ class API:
 
    def add(self):
       try:
-         self.__dbContext.add(datetime.now(), json.loads(request.data))
+         data = json.loads(request.data)
+         newTask = Task()
+         newTask.start = data["start"]
+         newTask.end = data["end"]
+         newTask.task = data["task"]
+         self.__dbContext.add(datetime.now(), newTask.getDict())
          self.__dbContext.save()
          return request.data
       except ValueError as e:
