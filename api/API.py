@@ -1,15 +1,14 @@
-from datetime import datetime
 from pathlib import Path
 
+from jsonschema import validate
 import sys, json
 
-import requests
 path_root = Path(__file__).parents[1]
 sys.path.append(str(path_root))
 
 from flask import Flask, jsonify, request
 from db.Store import DB, DataNotFoundException
-from api.types.Task import Task
+from . import schemas
 
 class API:
    def __init__(self):
@@ -27,7 +26,7 @@ class API:
       self.app.route('/worklog/new', methods=['POST'])(self.add)
 
    def getAllLog(self):
-      return jsonify(self.__dbContext.getAll())
+      return jsonify({})
 
    def removeLog(self, id):
       try:
@@ -51,15 +50,7 @@ class API:
 
    def add(self):
       try:
-         data = json.loads(request.data)
-         newTask = Task()
-         newTask.start = data["start"]
-         newTask.end = data["end"]
-         newTask.task = data["task"]
-         self.__dbContext.add(datetime.now(), newTask.getDict())
-         self.__dbContext.save()
-         return request.data
-      except ValueError as e:
-         return jsonify({'error': str(e)}), 500
-      except TypeError as t:
+         validate(instance=json.loads(request.data), schema=schemas.task)
+         return jsonify(self.__dbContext.getAll())
+      except Exception as t:
          return jsonify({'error': str(t)}), 500
